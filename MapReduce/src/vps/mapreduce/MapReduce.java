@@ -80,8 +80,8 @@ public class MapReduce {
 			int read_lines = offs;
 			if( (i*offs+offs) > curr_lines)
 				read_lines = (curr_lines - (i*offs));
-			System.out.println(read_lines);
-			System.out.println("Mapper starts: "+i*offs+" and reads: " + read_lines+"   = " + ((i*offs)+read_lines));
+			//System.out.println(read_lines);
+			//System.out.println("Mapper starts: "+i*offs+" and reads: " + read_lines+"   = " + ((i*offs)+read_lines));
 			
 			Reader<String> 	m_r = Configuration.createMapperReader(infile, i*offs, read_lines);
 			Writer<String> 	m_w = Configuration.createMapperWriter(temp, i); 
@@ -98,7 +98,7 @@ public class MapReduce {
 		}
 		
 		
-		Executor.execute(mapper, Configuration.THREAD_COUNT);
+		//Executor.execute(mapper, Configuration.THREAD_COUNT);
 		//Executor.execute(reducer, Configuration.THREAD_COUNT);
 	}
 	

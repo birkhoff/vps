@@ -29,7 +29,7 @@ public class MergingReader<Type extends Comparable<Type>> implements Reader<Type
 	 */
 	public MergingReader(final Reader<Type>[] p_reader) 
 	{
-		System.out.println("MergingReader wohoo");
+		
 		this.reader = p_reader;
 		
 		buffs = new ArrayList<BufferedReader>();
@@ -54,15 +54,13 @@ public class MergingReader<Type extends Comparable<Type>> implements Reader<Type
 		Type min 	  = buffs.get(0).m_next;
 		int min_index = 0;
 		
-		System.out.println("reading");
-		
 		for(int i = 1; i < buffs.size(); i++)
 		{
 			Type current = buffs.get(i).m_next;
 							
 			if(current != null && current.compareTo(min) <= 0)
 			{
-				System.out.println(current.toString());
+				
 				min = current;
 				min_index = i;
 			}
