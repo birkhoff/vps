@@ -109,7 +109,23 @@ public abstract class Reducer<KeyType extends Comparable<KeyType>, ValueType> im
 		System.out.println("Reducer(" + m_id + ") started");
 		start = System.currentTimeMillis();
 
-		// TODO: Aufgabe 3.2
+		KeyValuePair<KeyType, Iterable<ValueType>> pair = null;
+		
+		do
+		{
+			pair = m_reader.read();
+			
+			reduce(pair, m_context);							// dunno
+			//m_context.store(pair);							// Possible Error
+			
+		}while(pair != null);
+		 
+	
+		m_context.flush(m_writer);
+		
+		m_reader.close();
+		m_writer.close();
+		
 
 		end = System.currentTimeMillis();
 		System.out.println("Reducer(" + m_id + ") finished in " + (end - start) + " ms");

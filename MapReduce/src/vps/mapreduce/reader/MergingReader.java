@@ -3,13 +3,21 @@
  */
 package vps.mapreduce.reader;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 import vps.mapreduce.util.Contract;
+
 
 /**
  * Reads from multiple readers
  */
 public class MergingReader<Type extends Comparable<Type>> implements Reader<Type> {
 
+	
+	Reader<Type>[]	 reader;
+	ArrayList<BufferedReader> buffs;
+	
 	// Constructors
 	/**
 	 * Creates an instance of MergingReader
@@ -19,8 +27,19 @@ public class MergingReader<Type extends Comparable<Type>> implements Reader<Type
 	 * @param p_comparator
 	 *            the comparator to use
 	 */
-	public MergingReader(final Reader<Type>[] p_reader) {
-		// TODO: Aufgabe 1.3
+	public MergingReader(final Reader<Type>[] p_reader) 
+	{
+		System.out.println("MergingReader wohoo");
+		this.reader = p_reader;
+		
+		buffs = new ArrayList<BufferedReader>();
+		
+		for(int i = 0; i < p_reader.length; i++)
+		{
+			
+			BufferedReader buff = new BufferedReader(p_reader[i]);
+			buffs.add(buff);
+		}
 	}
 
 	// Methods
@@ -30,17 +49,40 @@ public class MergingReader<Type extends Comparable<Type>> implements Reader<Type
 	 * @return the element
 	 */
 	@Override
-	public Type read() {
-		// TODO: Aufgabe 1.3
-		return null;
+	public Type read() 
+	{
+		Type min 	  = buffs.get(0).m_next;
+		int min_index = 0;
+		
+		System.out.println("reading");
+		
+		for(int i = 1; i < buffs.size(); i++)
+		{
+			Type current = buffs.get(i).m_next;
+							
+			if(current != null && current.compareTo(min) <= 0)
+			{
+				System.out.println(current.toString());
+				min = current;
+				min_index = i;
+			}
+				
+		}
+		
+		return buffs.get(min_index).read();
 	}
 
 	/**
 	 * Closes the reader
 	 */
 	@Override
-	public void close() {
-		// TODO: Aufgabe 1.3
+	public void close()
+	{
+		for(int i = 0; i < this.reader.length; i ++)
+		{
+			reader[i].close();
+			buffs.get(i).close();
+		}
 	}
 
 	// Classes

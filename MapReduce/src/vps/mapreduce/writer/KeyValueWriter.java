@@ -4,12 +4,16 @@
 package vps.mapreduce.writer;
 
 import vps.mapreduce.util.KeyValuePair;
+import vps.mapreduce.Configuration;
 
 /**
  * Writes a KeyValuePair to an underlying writer
  */
 public class KeyValueWriter implements Writer<KeyValuePair<String, String>> {
 
+	
+	Writer<String> writer;
+	
 	// Constructors
 	/**
 	 * Creates an instance of KeyValueWriter
@@ -17,8 +21,10 @@ public class KeyValueWriter implements Writer<KeyValuePair<String, String>> {
 	 * @param p_writer
 	 *            the underlying writer to use
 	 */
-	public KeyValueWriter(final Writer<String> p_writer) {
-		// TODO: Aufgabe 2.1
+	public KeyValueWriter(final Writer<String> p_writer) 
+	{
+		
+		this.writer = p_writer;
 	}
 
 	// Methods
@@ -29,16 +35,19 @@ public class KeyValueWriter implements Writer<KeyValuePair<String, String>> {
 	 *            the KeyValuePair
 	 */
 	@Override
-	public void write(final KeyValuePair<String, String> p_element) {
-		// TODO: Aufgabe 2.1
+	public void write(final KeyValuePair<String, String> p_element) 
+	{
+		String out = p_element.getKey() + Configuration.KEY_VALUE_SEPARATOR + p_element.getValue();
+		this.writer.write(out);
 	}
 
 	/**
 	 * Closes the writer
 	 */
 	@Override
-	public void close() {
-		// TODO: Aufgabe 2.1
+	public void close()
+	{
+		this.writer.close();
 	}
 
 }

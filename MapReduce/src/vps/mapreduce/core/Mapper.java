@@ -84,8 +84,23 @@ public abstract class Mapper<KeyType extends Comparable<KeyType>, ValueType> imp
 		System.out.println("Mapper(" + m_id + ") started");
 		start = System.currentTimeMillis();
 
-		// TODO: Aufgabe 3.1
-
+		KeyValuePair<KeyType, ValueType> pair = null;
+		
+		do
+		{
+			pair = m_reader.read();
+			
+			map(pair, m_context);							// dunno
+			//m_context.store(pair);							// Possible Error
+			
+		}while(pair != null);
+		 
+	
+		m_context.flush(m_writer);
+		
+		m_reader.close();
+		m_writer.close();
+		
 		end = System.currentTimeMillis();
 		System.out.println("Mapper(" + m_id + ") finished in " + (end - start) + " ms");
 	}

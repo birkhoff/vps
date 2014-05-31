@@ -9,6 +9,9 @@ package vps.mapreduce.writer;
  */
 public class SplittingWriter<ValueType> implements Writer<ValueType> {
 
+	Writer<ValueType>[] writer;
+	int cycler;
+	
 	// Constructors
 	/**
 	 * Creates an instance of SplittingWriter
@@ -16,8 +19,10 @@ public class SplittingWriter<ValueType> implements Writer<ValueType> {
 	 * @param p_writer
 	 *            the writer to use
 	 */
-	public SplittingWriter(final Writer<ValueType>[] p_writer) {
-		// TODO: Aufgabe 2.2
+	public SplittingWriter(final Writer<ValueType>[] p_writer) 
+	{
+		this.writer = p_writer;
+		this.cycler = 0;
 	}
 
 	// Methods
@@ -28,16 +33,22 @@ public class SplittingWriter<ValueType> implements Writer<ValueType> {
 	 *            the element
 	 */
 	@Override
-	public void write(final ValueType p_element) {
-		// TODO: Aufgabe 2.2
+	public void write(final ValueType p_element) 
+	{
+		writer[cycler].write(p_element);
+		cycler = (cycler + 1) % writer.length; 
 	}
 
 	/**
 	 * Closes the writer
 	 */
 	@Override
-	public void close() {
-		// TODO: Aufgabe 2.2
+	public void close()
+	{
+		for(int i = 0; i < this.writer.length; i++)
+		{
+			this.writer[i].close();
+		}
 	}
 
 }

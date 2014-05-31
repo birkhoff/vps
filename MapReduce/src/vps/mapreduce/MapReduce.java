@@ -3,6 +3,19 @@
  */
 package vps.mapreduce;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import vps.mapreduce.core.Job;
+import vps.mapreduce.core.Mapper;
+import vps.mapreduce.core.Reducer;
+import vps.mapreduce.jobs.*;
+import vps.mapreduce.reader.Reader;
+import vps.mapreduce.util.Executor;
+import vps.mapreduce.writer.Writer;
+import vps.mapreduce.Configuration;
+
 /**
  * Start class for MapReduce
  */
@@ -14,6 +27,10 @@ public class MapReduce {
 	 */
 	private MapReduce() {}
 
+	// javac vps/mapreduce/*.java vps/mapreduce/**/**.java
+	// java vps.mapreduce.MapReduce <job> <infile> <temp_prefix> <out_prefix>
+	// java  vps.mapreduce.MapReduce WordCount ../example_wc.txt test out2.txt
+	
 	// Methods
 	/**
 	 * Programm entry point for MapReduce
@@ -21,8 +38,111 @@ public class MapReduce {
 	 * @param p_arguments
 	 *            the programm arguments
 	 */
-	public static void main(final String[] p_arguments) {
-		// TODO: Aufgabe 4
+	public static void main(final String[] p_arguments)
+	{	
+		Job job 		= instantiate_job(p_arguments[0]);
+		String infile	= p_arguments[1];					// input file
+		String temp		= p_arguments[2];					// temp file
+		String out		= p_arguments[3];					// output file
+		
+		
+		try
+		{
+			start(job, infile, out, temp);
+		
+		} catch (IOException e) {
+			System.out.println("Starting failed");
+			e.printStackTrace();
+		}
+		
+				
+	}
+	
+	
+	
+	private static void start(Job job, String infile, String out, String temp) throws IOException
+	{
+			
+		Mapper[] mapper = new Mapper[Configuration.MAPPER_COUNT];
+		Reducer[] reducer = new Reducer[Configuration.REDUCER_COUNT];
+		
+		int curr_lines = Configuration.getLineCount(infile);
+		int curr_map   = Configuration.MAPPER_COUNT;
+		
+		System.out.println("Mapper: "+ curr_map + "\nLines: "+ curr_lines);
+		
+		int offs =  (int) Math.ceil((double)curr_lines/curr_map);
+		
+		System.out.println("Offsets: "+ offs);
+		
+		for(int i = 0; i < curr_map; i ++)
+		{
+			int read_lines = offs;
+			if( (i*offs+offs) > curr_lines)
+				read_lines = (curr_lines - (i*offs));
+			System.out.println(read_lines);
+			System.out.println("Mapper starts: "+i*offs+" and reads: " + read_lines+"   = " + ((i*offs)+read_lines));
+			
+			Reader<String> 	m_r = Configuration.createMapperReader(infile, i*offs, read_lines);
+			Writer<String> 	m_w = Configuration.createMapperWriter(temp, i); 
+			
+			mapper[i] = job.createMapper(i, m_r, m_w);
+		}
+		
+		for(int i = 0; i <Configuration.REDUCER_COUNT; i ++)
+		{
+			Reader<String>[] 	r_r = Configuration.createReducerReader(temp, i);
+			Writer<String> 		r_w = Configuration.createReducerWriter(out, i);
+			
+			reducer[i] = job.createReducer(i, r_r, r_w);
+		}
+		
+		
+		Executor.execute(mapper, Configuration.THREAD_COUNT);
+		//Executor.execute(reducer, Configuration.THREAD_COUNT);
+	}
+	
+	private static Job instantiate_job(final String job_name)
+	{
+		Job job = null;
+		
+		try 
+		{
+			//job = (Job)Class.forName("vps.mapreduce.jobs."+job_name).newInstance();
+			
+			Class<?> myClass = Class.forName("vps.mapreduce.jobs."+job_name);
+
+			Constructor<?> constructor = myClass.getConstructor();
+
+			Object[] parameters = {};
+			job = (Job)constructor.newInstance(parameters);
+		
+		} catch (ClassNotFoundException e) {
+			System.out.println("Class not found");
+			e.printStackTrace();
+				
+		} catch (InstantiationException e) {
+			System.out.println("Could not instanticate Object");
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			System.out.println("Da lief grundsätzlich was schief!");
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	
+		return job;
 	}
 
 }
