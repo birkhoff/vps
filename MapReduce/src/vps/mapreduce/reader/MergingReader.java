@@ -59,14 +59,15 @@ public class MergingReader<Type extends Comparable<Type>> implements Reader<Type
 		for(int i = 1; i < buffs.size(); i++)
 		{
 
-			System.out.println("start");
-
-			
+						
 			Type current = buffs.get(i).m_next;
-			System.out.println("curr: "+ current+"     min: "+min);
+			
+			//System.out.println(current);
+			
 			if(min == null && current != null)
 			{
 				min = current;
+				min_index = i;
 			}
 			else if(current != null && current.compareTo(min) <= 0)
 			{
@@ -74,8 +75,11 @@ public class MergingReader<Type extends Comparable<Type>> implements Reader<Type
 				min_index = i;
 			}
 			
+			
 		}
-		
+
+		System.out.println("Merging reader " + min);
+		System.out.println("List           " + buffs.get(min_index).m_next);
 		return buffs.get(min_index).read();
 	}
 

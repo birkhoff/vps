@@ -92,7 +92,7 @@ public abstract class Mapper<KeyType extends Comparable<KeyType>, ValueType> imp
 			
 			if(pair != null)
 			{	
-				System.out.println("Mapper_"+m_id+": "+pair);
+				//System.out.println("Mapper_"+m_id+": "+pair);
 				//m_context.store(pair);
 				map(pair, m_context);
 				//m_writer.write(pair);
