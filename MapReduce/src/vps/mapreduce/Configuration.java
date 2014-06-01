@@ -95,6 +95,7 @@ public abstract class Configuration {
 
 		ret = (Reader<String>[])Array.newInstance(Reader.class, MAPPER_COUNT);
 		for (int i = 0;i < MAPPER_COUNT;i++) {
+			System.out.println("CreateReducerReder: "+p_path+" "+i+"  p_id: "+p_id);
 			ret[i] = new InputReader(new FileInput(String.format(INTERMEDIATE_NAME_FORMAT, p_path, i, p_id)));
 		}
 

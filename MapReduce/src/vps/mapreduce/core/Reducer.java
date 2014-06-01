@@ -114,9 +114,8 @@ public abstract class Reducer<KeyType extends Comparable<KeyType>, ValueType> im
 		do
 		{
 			pair = m_reader.read();
-			
-			reduce(pair, m_context);							// dunno
-			//m_context.store(pair);							// Possible Error
+			//System.out.println("Reducer_"+m_id+": "+pair+"\n  "+i);
+			if(pair != null) 	reduce(pair, m_context);							// dunno
 			
 		}while(pair != null);
 		 

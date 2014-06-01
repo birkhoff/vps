@@ -23,7 +23,6 @@ public class KeyValueWriter implements Writer<KeyValuePair<String, String>> {
 	 */
 	public KeyValueWriter(final Writer<String> p_writer) 
 	{
-		
 		this.writer = p_writer;
 	}
 
@@ -39,6 +38,7 @@ public class KeyValueWriter implements Writer<KeyValuePair<String, String>> {
 	{
 		String out = p_element.getKey() + Configuration.KEY_VALUE_SEPARATOR + p_element.getValue();
 		this.writer.write(out);
+		//this.writer.write("test");
 	}
 
 	/**

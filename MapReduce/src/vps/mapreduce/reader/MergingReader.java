@@ -51,20 +51,29 @@ public class MergingReader<Type extends Comparable<Type>> implements Reader<Type
 	@Override
 	public Type read() 
 	{
+		
 		Type min 	  = buffs.get(0).m_next;
 		int min_index = 0;
 		
+
 		for(int i = 1; i < buffs.size(); i++)
 		{
+
+			System.out.println("start");
+
+			
 			Type current = buffs.get(i).m_next;
-							
-			if(current != null && current.compareTo(min) <= 0)
+			System.out.println("curr: "+ current+"     min: "+min);
+			if(min == null && current != null)
 			{
-				
+				min = current;
+			}
+			else if(current != null && current.compareTo(min) <= 0)
+			{
 				min = current;
 				min_index = i;
 			}
-				
+			
 		}
 		
 		return buffs.get(min_index).read();

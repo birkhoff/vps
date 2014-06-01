@@ -22,9 +22,9 @@ public class Executor implements Runnable {
 	 * @param p_executable
 	 *            the executable class
 	 */
-	public Executor(final Executable p_executable) {
+	public Executor(final Executable p_executable)
+	{
 		Contract.checkNotNull(p_executable, "no executable given");
-
 		m_executable = p_executable;
 	}
 
@@ -53,7 +53,7 @@ public class Executor implements Runnable {
 		Contract.check(p_threadCount > 0, "invalid thread count given");
 
 		executorService = Executors.newFixedThreadPool(p_threadCount);
-
+		System.out.println("Threads: "+p_threadCount);
 		futures = new Future[p_executables.length];
 		for (int i = 0;i < p_executables.length;i++) {
 			futures[i] = executorService.submit(new Executor(p_executables[i]));

@@ -45,13 +45,18 @@ public class KeyValueReader implements Reader<KeyValuePair<String, String>> {
 					
 		String seperated[] = current.split(Configuration.KEY_VALUE_SEPARATOR);
 		
-		String key = seperated[0];
+		String key;
 		String val;
 		
 		if(seperated.length > 1)
+		{
+			key = seperated[0];
 			val = seperated[1];
-		else
-			val = ""+this.line;
+		}else
+		{
+			val =  seperated[0];
+			key = ""+this.line;
+		}
 		
 		this.line++;
 		

@@ -75,31 +75,40 @@ public class MapReduce {
 		
 		System.out.println("Offsets: "+ offs);
 		
-		for(int i = 0; i < curr_map; i ++)
+		int p_id;
+		for(p_id = 0; p_id < curr_map; p_id ++)
 		{
 			int read_lines = offs;
-			if( (i*offs+offs) > curr_lines)
-				read_lines = (curr_lines - (i*offs));
+			if( (p_id*offs+offs) > curr_lines)
+				read_lines = (curr_lines - (p_id*offs));
 			//System.out.println(read_lines);
-			//System.out.println("Mapper starts: "+i*offs+" and reads: " + read_lines+"   = " + ((i*offs)+read_lines));
+			//System.out.println("Mapper starts: "+p_id*offs+" and reads: " + read_lines+"   = " + ((p_id*offs)+read_lines));
 			
-			Reader<String> 	m_r = Configuration.createMapperReader(infile, i*offs, read_lines);
-			Writer<String> 	m_w = Configuration.createMapperWriter(temp, i); 
+			Reader<String> 	m_r = Configuration.createMapperReader(infile, p_id*offs, read_lines);
+			Writer<String> 	m_w = Configuration.createMapperWriter(temp, p_id); 
 			
-			mapper[i] = job.createMapper(i, m_r, m_w);
+			mapper[p_id] = job.createMapper(p_id, m_r, m_w);
 		}
 		
-		for(int i = 0; i <Configuration.REDUCER_COUNT; i ++)
+		Executor.execute(mapper, Configuration.THREAD_COUNT);
+		
+				
+		System.out.println("p_id: "+p_id+"\nReducer: " + Configuration.REDUCER_COUNT);
+		
+		int mapper_count = p_id;
+		
+		for(p_id = 0; p_id < /*mapper_count+*/Configuration.REDUCER_COUNT; p_id ++)
 		{
-			Reader<String>[] 	r_r = Configuration.createReducerReader(temp, i);
-			Writer<String> 		r_w = Configuration.createReducerWriter(out, i);
+			System.out.println("Reducer_"+p_id);
+			Reader<String>[] 	r_r = Configuration.createReducerReader(temp, p_id);
+			Writer<String> 		r_w = Configuration.createReducerWriter(out, p_id);
 			
-			reducer[i] = job.createReducer(i, r_r, r_w);
+			reducer[p_id] = job.createReducer(p_id, r_r, r_w);
 		}
 		
 		
-		//Executor.execute(mapper, Configuration.THREAD_COUNT);
-		//Executor.execute(reducer, Configuration.THREAD_COUNT);
+		
+		Executor.execute(reducer, Configuration.THREAD_COUNT);
 	}
 	
 	private static Job instantiate_job(final String job_name)
