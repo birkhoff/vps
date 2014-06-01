@@ -41,9 +41,6 @@ public class IterableValueReader<KeyType extends Comparable<KeyType>, ValueType>
 	@Override
 	public KeyValuePair<KeyType, Iterable<ValueType>> read() {
 		
-		//System.out.println(this.reader.toString());
-
-		System.out.println("\nlookahead: "+lookahead);
 		
 		if(this.lookahead == null)
 			return null;
@@ -53,7 +50,6 @@ public class IterableValueReader<KeyType extends Comparable<KeyType>, ValueType>
 
 		KeyValuePair<KeyType, ValueType> pair;
 		pair = this.reader.read();								// here crash
-		System.out.println("pair: "+pair);
 	
 		while(pair != null && pair.getKey().compareTo(this.lookahead.getKey()) == 0)
 		{	
@@ -61,13 +57,12 @@ public class IterableValueReader<KeyType extends Comparable<KeyType>, ValueType>
 			pair = this.reader.read();						// set pair to the next
 		}
 		
-		//System.out.println("\n :"+lookahead.getKey()+ " "+vals);
 		
 		KeyValuePair<KeyType, Iterable<ValueType>> return_pair = new KeyValuePair<KeyType, Iterable<ValueType>>(lookahead.getKey(), vals);
 		
 		this.lookahead = pair;									// set lookahead to new pair
 		
-		// System.out.println(return_pair);
+		
 		
 		return return_pair;
 		
