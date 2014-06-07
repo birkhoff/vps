@@ -95,9 +95,8 @@ public class MapReduce {
 				
 		System.out.println("p_id: "+p_id+"\nReducer: " + Configuration.REDUCER_COUNT);
 		
-		int mapper_count = p_id;
 		
-		for(p_id = 0; p_id < /*mapper_count+*/Configuration.REDUCER_COUNT; p_id ++)
+		for(p_id = 0; p_id < Configuration.REDUCER_COUNT; p_id ++)
 		{
 			System.out.println("Reducer_"+p_id);
 			Reader<String>[] 	r_r = Configuration.createReducerReader(temp, p_id);
@@ -134,7 +133,7 @@ public class MapReduce {
 			System.out.println("Could not instanticate Object");
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			System.out.println("Da lief grundsätzlich was schief!");
+			System.out.println("Da lief grundsaetzlich was schief!");
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
