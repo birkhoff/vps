@@ -402,7 +402,7 @@ public class CommonFriends implements Job {
 				String current = this.reader.read();
 				
 				if(current == null)
-					return null;		// Error
+					return null;		
 							
 				String seperated[] = current.split(Configuration.KEY_VALUE_SEPARATOR);
 				
@@ -411,8 +411,14 @@ public class CommonFriends implements Job {
 				
 				key.add(seperated[0]);
 				
-				for(int i = 1; i < seperated.length; i++)
-					val.add(seperated[1]);
+				if(seperated.length > 1)
+				{
+					String vals[] = seperated[1].split(CFSet.ELEMENT_SEPERATOR);
+					
+					for(int i = 1; i < vals.length; i++)
+						val.add(vals[i]);
+				}
+				
 					
 				
 				KeyValuePair<CFSet, CFSet> return_val = new KeyValuePair<CFSet, CFSet>(key, val);	
@@ -431,5 +437,76 @@ public class CommonFriends implements Job {
 
 
 		}
+	
+	
+	
+	
+	
+	///// 			WRITER
+	
+	
+	
+	public class CFSetWriter implements Writer<KeyValuePair<CFSet, CFSet>> {
+
+		
+		Writer<String> writer;
+		
+		// Constructors
+		/**
+		 * Creates an instance of KeyValueWriter
+		 * 
+		 * @param p_writer
+		 *            the underlying writer to use
+		 */
+		public CFSetWriter(final Writer<String> p_writer) 
+		{
+			this.writer = p_writer;
+		}
+
+		// Methods
+		/**
+		 * Writes a KeyValuePair
+		 * 
+		 * @param p_element
+		 *            the KeyValuePair
+		 */
+		@Override
+		public void write(final KeyValuePair<CFSet, CFSet> p_element) 
+		{
+			Iterator<String> keys = p_element.getKey().iterator();
+			Iterator<String> vals = p_element.getValue().iterator();
+			
+			String friends = keys.next();
+			
+			for(String s = ""; s != null; s=keys.next())
+			{
+				friends += s;
+			}
+			
+				
+			String common = vals.next();
+			
+			for(String s = ""; s != null; s=keys.next())
+			{
+				common += CFSet.ELEMENT_SEPERATOR+s;
+			}
+			
+			
+			String out = friends + Configuration.KEY_VALUE_SEPARATOR + common;
+			this.writer.write(out);
+			//this.writer.write("test");
+		}
+
+		/**
+		 * Closes the writer
+		 */
+		@Override
+		public void close()
+		{
+			this.writer.close();
+		}
+
+	}
+	
 
 }
