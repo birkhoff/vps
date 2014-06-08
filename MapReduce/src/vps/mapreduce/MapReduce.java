@@ -78,6 +78,12 @@ public class MapReduce {
 		int p_id;
 		for(p_id = 0; p_id < curr_map; p_id ++)
 		{
+			
+			if(p_id >= curr_lines){
+				
+				throw new IOException("\nERROR: To May Mappers for to few input data! \nPlease Adjust number of Mapper!");
+			}
+			
 			int read_lines = offs;
 			if( (p_id*offs+offs) > curr_lines)
 				read_lines = (curr_lines - (p_id*offs));

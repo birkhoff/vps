@@ -289,9 +289,7 @@ public class CommonFriends implements Job {
 				CFSet key_pair = new CFSet();
 				key_pair.add(p_pair.getKey().iterator().next());
 				key_pair.add(curr_val);
-				
-				System.out.println("Mapper_"+id+": "+key_pair+" "+p_pair.getValue());
-				
+								
 				p_context.store(new KeyValuePair<>(key_pair, p_pair.getValue()));
 				
 			}
@@ -494,31 +492,13 @@ public class CommonFriends implements Job {
 		 */
 		@Override
 		public void write(final KeyValuePair<CFSet, CFSet> p_element) 
-		{
-			
-			Iterator<String> keys = p_element.getKey().iterator();
-			Iterator<String> vals = p_element.getValue().iterator();
-			
-			String friends = keys.next();
-			
-			for(String s = ""; keys.hasNext(); s=keys.next())
-			{
-				friends += s;
-			}
-			
+		{			
+			String friends = CFSet.parse(p_element.getKey());
+			String common = CFSet.parse(p_element.getValue());
 				
-			String common = vals.next();
-			
-			for(String s = ""; vals.hasNext(); s=vals.next())
-			{
-				common += CFSet.ELEMENT_SEPERATOR+s;
-				System.out.println("  "+s+" -> "+common);
-			}
-			
-			System.out.println("Common: "+common);
+	
 			String out = friends + Configuration.KEY_VALUE_SEPARATOR + common;
 			this.writer.write(out);
-			//this.writer.write("test");
 			
 		}
 

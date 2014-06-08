@@ -1,4 +1,4 @@
-A	A;;B;D
-B	A;;B;D
-C	A;;B;D
-C	A;;B;D
+A;C	A;B;D;E
+B;C	A;B;D;E
+C;D	A;B;D;E
+C;E	A;B;D;E
