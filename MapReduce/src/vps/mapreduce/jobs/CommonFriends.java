@@ -46,8 +46,7 @@ public class CommonFriends implements Job {
 	 */
 	@Override
 	public Mapper<?, ?> createMapper(final int p_id, final Reader<String> p_reader, final Writer<String> p_writer) {
-		// TODO: Aufgabe 5.2
-		return null;
+		return new CFMapper(p_id, p_reader, p_writer);
 	}
 
 	/**
@@ -63,8 +62,7 @@ public class CommonFriends implements Job {
 	 */
 	@Override
 	public Reducer<?, ?> createReducer(final int p_id, final Reader<String>[] p_reader, final Writer<String> p_writer) {
-		// TODO: Aufgabe 5.3
-		return null;
+		return new CFReducer(p_id, p_reader, p_writer);
 	}
 
 	// Classes
@@ -211,12 +209,22 @@ public class CommonFriends implements Job {
 			
 			while(diff == 0)
 			{
-				self_x = self.next();
-				other_y = other.next();
 				
-				if(self_x == null && other_y == null)	return 0;
-				if(self_x == null)						return -1;
-				if(other_y == null)						return 1;
+				if(!self.hasNext() && !other.hasNext())
+					return 0;
+				
+				if(self.hasNext())
+					self_x = self.next();
+				else
+					return -1;
+				
+				if(other.hasNext())
+					other_y = other.next();
+				else
+					return 1;
+				
+				//System.out.println(this.m_set+" "+p_other.m_set+"\n"+self_x+"  "+other_y);
+				
 				
 				diff = self_x.compareTo(other_y);
 			}
@@ -238,11 +246,12 @@ public class CommonFriends implements Job {
 	}
 	
 	
-	private class CFMapper extends Mapper<String, String> {
+	private class CFMapper extends Mapper<CFSet, CFSet> {
 
+		int id;
 		// Constructors
 		/**
-		 * Creates an instance of WCMapper
+		 * Creates an instance of CFMapper
 		 * 
 		 * @param p_id
 		 *            the id of the mapper
@@ -253,6 +262,7 @@ public class CommonFriends implements Job {
 		 */
 		public CFMapper(final int p_id, final Reader<String> p_reader, final Writer<String> p_writer) {
 			super(p_id, p_reader, p_writer);
+			this.id = p_id;
 		}
 
 		// Methods
@@ -265,11 +275,27 @@ public class CommonFriends implements Job {
 		 *            the context
 		 */
 		@Override
-		protected void map(final KeyValuePair<String, String> p_pair, final MapContext<String, String> p_context) {
+		protected void map(final KeyValuePair<CFSet, CFSet> p_pair, final MapContext<CFSet, CFSet> p_context) {
 			Contract.checkNotNull(p_pair, "no pair given");
 			Contract.checkNotNull(p_context, "no context given");
-
-			p_context.store(new KeyValuePair<>(p_pair.getValue(), Integer.toString(1)));
+			
+			Iterator<String> val_iter = p_pair.getValue().iterator();
+			
+			while(val_iter.hasNext())
+			{
+				
+				String curr_val = val_iter.next();
+				
+				CFSet key_pair = new CFSet();
+				key_pair.add(p_pair.getKey().iterator().next());
+				key_pair.add(curr_val);
+				
+				System.out.println("Mapper_"+id+": "+key_pair+" "+p_pair.getValue());
+				
+				p_context.store(new KeyValuePair<>(key_pair, p_pair.getValue()));
+				
+			}
+			
 		}
 
 		/**
@@ -280,8 +306,8 @@ public class CommonFriends implements Job {
 		 * @return a reader for KeyValuePairs
 		 */
 		@Override
-		protected Reader<KeyValuePair<String, String>> getReader(final Reader<String> p_reader) {
-			return new KeyValueReader(p_reader);
+		protected Reader<KeyValuePair<CFSet, CFSet>> getReader(final Reader<String> p_reader) {
+			return new CFSetReader(p_reader);
 		}
 
 		/**
@@ -292,8 +318,8 @@ public class CommonFriends implements Job {
 		 * @return a writer for KeyValuePairs
 		 */
 		@Override
-		protected Writer<KeyValuePair<String, String>> getWriter(final Writer<String> p_writer) {
-			return new KeyValueWriter(p_writer);
+		protected Writer<KeyValuePair<CFSet, CFSet>> getWriter(final Writer<String> p_writer) {
+			return new CFSetWriter(p_writer);
 		}
 
 	}
@@ -301,7 +327,7 @@ public class CommonFriends implements Job {
 	/**
 	 * The reducer for the word count
 	 */
-	private class CFReducer extends Reducer<String, String> {
+	private class CFReducer extends Reducer<CFSet, CFSet> {
 
 		// Constructors
 		/**
@@ -328,23 +354,17 @@ public class CommonFriends implements Job {
 		 *            the context
 		 */
 		@Override
-		protected void reduce(final KeyValuePair<String, Iterable<String>> p_pair,
-				final ReduceContext<String, String> p_context) {
-			int count;
-			final Iterator<String> iterator;
-
+		protected void reduce(final KeyValuePair<CFSet, Iterable<CFSet>> p_pair,
+				final ReduceContext<CFSet, CFSet> p_context) {
+			
 			Contract.checkNotNull(p_pair, "no pair given");
 			Contract.checkNotNull(p_context, "no context given");
 
-			count = 0;
-			iterator = p_pair.getValue().iterator();
-			while (iterator.hasNext()) {
-				iterator.next();
-
-				count++;
-			}
-
-			p_context.store(new KeyValuePair<String, String>(p_pair.getKey(), Integer.toString(count)));
+			
+			CFSet intersect = new CFSet();
+			intersect = CFSet.intersect(p_pair.getValue());
+	
+			p_context.store(new KeyValuePair<CFSet, CFSet>(p_pair.getKey(), intersect));
 		}
 
 		/**
@@ -355,8 +375,8 @@ public class CommonFriends implements Job {
 		 * @return a reader for KeyValuePairs
 		 */
 		@Override
-		protected Reader<KeyValuePair<String, String>> getReader(final Reader<String> p_reader) {
-			return new KeyValueReader(p_reader);
+		protected Reader<KeyValuePair<CFSet, CFSet>> getReader(final Reader<String> p_reader) {
+			return new CFSetReader(p_reader);
 		}
 
 		/**
@@ -367,11 +387,13 @@ public class CommonFriends implements Job {
 		 * @return a writer for KeyValuePairs
 		 */
 		@Override
-		protected Writer<KeyValuePair<String, String>> getWriter(final Writer<String> p_writer) {
-			return new KeyValueWriter(p_writer);
+		protected Writer<KeyValuePair<CFSet, CFSet>> getWriter(final Writer<String> p_writer) {
+			return new CFSetWriter(p_writer);
 		}
 	}
 	
+	
+	//// READER
 	
 	public class CFSetReader implements Reader<KeyValuePair<CFSet, CFSet>> {
 		
@@ -415,14 +437,14 @@ public class CommonFriends implements Job {
 				{
 					String vals[] = seperated[1].split(CFSet.ELEMENT_SEPERATOR);
 					
-					for(int i = 1; i < vals.length; i++)
+					for(int i = 0; i < vals.length; i++)
 						val.add(vals[i]);
 				}
 				
 					
 				
 				KeyValuePair<CFSet, CFSet> return_val = new KeyValuePair<CFSet, CFSet>(key, val);	
-				//System.out.println(" key: "+ current+"\t\t val: " + val);
+				//System.out.println(" key: "+ key+"\t\t val: " + val);
 				return return_val;
 			}
 
@@ -473,12 +495,13 @@ public class CommonFriends implements Job {
 		@Override
 		public void write(final KeyValuePair<CFSet, CFSet> p_element) 
 		{
+			
 			Iterator<String> keys = p_element.getKey().iterator();
 			Iterator<String> vals = p_element.getValue().iterator();
 			
 			String friends = keys.next();
 			
-			for(String s = ""; s != null; s=keys.next())
+			for(String s = ""; keys.hasNext(); s=keys.next())
 			{
 				friends += s;
 			}
@@ -486,15 +509,17 @@ public class CommonFriends implements Job {
 				
 			String common = vals.next();
 			
-			for(String s = ""; s != null; s=keys.next())
+			for(String s = ""; vals.hasNext(); s=vals.next())
 			{
 				common += CFSet.ELEMENT_SEPERATOR+s;
+				System.out.println("  "+s+" -> "+common);
 			}
 			
-			
+			System.out.println("Common: "+common);
 			String out = friends + Configuration.KEY_VALUE_SEPARATOR + common;
 			this.writer.write(out);
 			//this.writer.write("test");
+			
 		}
 
 		/**
